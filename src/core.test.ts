@@ -1,12 +1,4 @@
-// const jsdom = require("jsdom");
-import jsdom from "jsdom";
-
-const { JSDOM } = jsdom;
-
-import { initializeLilElement, ObservableVariable, ObservableVariableCompute, ObservableVariableMap } from './core';
-
-const BARE_HTML_DOC = "<!doctype html><html><body></body></html>"
-const bareDOM = () => new JSDOM(BARE_HTML_DOC);
+import { LilElement, fragment, ObservableVariable, NullableRender } from './core';
 
 test('ObservableVariable set number', () => {
     const ov = new ObservableVariable(1);
@@ -40,9 +32,6 @@ test('ObservableVariable unsubscribe', done => {
     ov.val += 1;
 });
 test('ObservableVariable map', () => {
-    const dom = bareDOM();
-    const LilElement = initializeLilElement({ documentInstance: dom.window.document });
-
     const arr = [1, 2, 3];
     const ov = new ObservableVariable(arr);
     const ovm = ov.map((e: any, i: number, a: any[]) => {
@@ -70,10 +59,6 @@ test('ObservableVariable compute array', () => {
 });
 
 test('LilElement children', () => {
-    
-    const dom = bareDOM();
-    const LilElement = initializeLilElement({ documentInstance: dom.window.document });
-
     const Div = LilElement('div', { textContent: "String" });
     const nested = LilElement('div',{},
         Div);
@@ -82,9 +67,6 @@ test('LilElement children', () => {
     expect(nested.outerHTML).toBe("<div><div>String</div></div>")
 });
 test('LilElement id, class props', () => {
-    const dom = bareDOM();
-    const LilElement = initializeLilElement({ documentInstance: dom.window.document });
-
     const Div = LilElement('div', { textContent: "String", id: "nestedmyid", className: "nestedmyclass" });
     const nested = LilElement('div', { id: "myid", className: "myclass" }, Div);
 
@@ -92,9 +74,6 @@ test('LilElement id, class props', () => {
     expect(nested.outerHTML).toBe('<div id="myid" class="myclass"><div id="nestedmyid" class="nestedmyclass">String</div></div>')
 });
 test('LilElement reactive update', () => {
-    const dom = bareDOM();
-    const LilElement = initializeLilElement({ documentInstance: dom.window.document });
-
     const initStr = "MyText";
     const ov = new ObservableVariable(initStr);
 
@@ -109,8 +88,6 @@ test('LilElement reactive update', () => {
     expect(nested.outerHTML).toBe(`<div id="myid" class="myclass"><div id="nestedmyid" class="nestedmyclass">${newVal}</div></div>`)
 });
 test('LilElement reactive list', () => {
-    const dom = bareDOM();
-    const LilElement = initializeLilElement({ documentInstance: dom.window.document });
     const arr = [1, 2, 3];
     const ov = new ObservableVariable(arr);
 
@@ -122,9 +99,6 @@ test('LilElement reactive list', () => {
     expect(list.outerHTML).toBe(`<ul>${expectedLis}</ul>`);
 });
 test('LilElement pass children as list of elements or variadic', () => {
-    const dom = bareDOM();
-    const LilElement = initializeLilElement({ documentInstance: dom.window.document });
-
     const list1 = LilElement('ul', {}, [
         LilElement('li', { textContent: 'li:1' }),
         LilElement('li', { textContent: 'li:2' }),
@@ -140,8 +114,6 @@ test('LilElement pass children as list of elements or variadic', () => {
     expect(list1.outerHTML).toBe(list2.outerHTML);
 });
 test('LilElement reactive object binding', () => {
-    const dom = bareDOM();
-    const LilElement = initializeLilElement({ documentInstance: dom.window.document });
     const obj = { email: "", password: "" };
     const ov = new ObservableVariable(obj);
 
@@ -160,8 +132,6 @@ test('LilElement reactive object binding', () => {
     expect(view.outerHTML).toBe(`<div><span>${email}</span><br><span>${password}</span></div>`);
 });
 test.skip('LilElement reactive object binding', () => {
-    const dom = bareDOM();
-    const LilElement = initializeLilElement({ documentInstance: dom.window.document });
     const obj = { email: "", password: "" };
     const ov = new ObservableVariable(obj);
 
@@ -175,7 +145,7 @@ test.skip('LilElement reactive object binding', () => {
         LilElement('input', { id: 'password', onchange: e => passwordOnChange(e) })
     );
 
-    dom.window.document.body.append(view);
+    document.body.append(view);
 
 
     // +-----------------------------------------------------+
@@ -189,9 +159,6 @@ test.skip('LilElement reactive object binding', () => {
     expect(ov.val.password).toBe(dispatchPasswordString);
 });
 test('LilElement reactivity nested minicomponents', (done) => {
-    const dom = bareDOM();
-    const LilElement = initializeLilElement({ documentInstance: dom.window.document });
-
     function MiniApp({ inp, out }: { inp: ObservableVariable, out: ObservableVariable }) {
         const view = LilElement('div', {},
             LilElement('div', { textContent: inp }),
@@ -222,4 +189,26 @@ test('LilElement reactivity nested minicomponents', (done) => {
         expect(outobs.val).toBe("Changed input");
         done();
     }, 900);
+});
+
+test('LilElement accept null elements, but don\'t render them', () => {
+    const div1 = LilElement('div', {}, NullableRender(null));
+    const div2 = LilElement('div', {}, [NullableRender(null)]);
+    const div3 = LilElement('div', {}, 
+        LilElement('div', {}, NullableRender(null))
+    );
+
+    expect(div1.outerHTML).toBe('<div></div>');
+    expect(div2.outerHTML).toBe('<div></div>');
+    expect(div3.outerHTML).toBe('<div><div></div></div>');
+
+    const div4 = LilElement('div', {}, NullableRender(null), NullableRender(null));
+    const div5 = LilElement('div', {}, [NullableRender(null), LilElement('div', {}), NullableRender(null)]);
+    const div6 = LilElement('div', {}, 
+        LilElement('div', {}, NullableRender(null))
+    );
+
+    expect(div4.outerHTML).toBe('<div></div>');
+    expect(div5.outerHTML).toBe('<div><div></div></div>');
+    expect(div6.outerHTML).toBe('<div><div></div></div>');
 });
