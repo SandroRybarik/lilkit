@@ -1,15 +1,16 @@
 {
   "name": "lilkit",
-  "version": "1.0.0",
-  "description": "",
+  "version": "1.0.2",
+  "description": "Lilkit is kit for creating portable Javascript components/apps that can be used anywhere.",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "npx tsc && npx esbuild dist/*.js --minify --target=es6 --allow-overwrite --outdir=dist",
     "test": "jest --env=jsdom"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["ui", "lil-components", "lilkit"],
+  "author": "SandroRybarik",
+  "license": "MIT",
   "devDependencies": {
     "@types/jest": "^26.0.24",
     "@types/jsdom": "^16.2.13",
@@ -18,5 +19,25 @@
     "jsdom": "^16.6.0",
     "ts-jest": "^27.0.4",
     "typescript": "^4.3.5"
+  },
+  "dependencies": {
+    "@skypack/package-check": "^0.2.2"
+  },
+  "repository": {
+    "url": "https://github.com/SandroRybarik/lilkit"
+  },
+  "files": [
+    "src",
+    "dist"
+  ],
+  "module": "./dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./elements": {
+      "import": "./dist/elements.js"
+    },
+    "./core": {
+      "import": "./dist/core.js"
+    }
   }
 }
