@@ -1,6 +1,6 @@
 {
   "name": "lilkit",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Lilkit is kit for creating portable Javascript components/apps that can be used anywhere.",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

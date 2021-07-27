@@ -9,7 +9,7 @@ Goal is to render **only once** and all additional updates are carried on existi
 Simple example what's possible:
 
 ```js
-import {div, ul, li, button} from 'lilkit/elements';
+import {div, ul, li, button} from 'https://cdn.skypack.dev/lilkit/elements';
 
 const MyLilDiv = (...children) => div({ className: "lil" }, children);
 const array = [1,2,3];
@@ -31,8 +31,8 @@ document.getElementById("deployHere").appendChild(view);
 More complicated example with reactivity:
 
 ```js
-import { div, ul, li, input, button } from 'lilkit/elements';
-import { ObservableVariable } from 'lilkit/core';
+import { div, ul, li, input, button } from 'https://cdn.skypack.dev/lilkit/elements';
+import { ObservableVariable, LilPlainComponent } from 'https://cdn.skypack.dev/lilkit/core';
 
 class MyLilComponent extends LilPlainComponent {
     constructor(props) {
@@ -42,7 +42,7 @@ class MyLilComponent extends LilPlainComponent {
     }
 
     myNextRead(readItem) {
-        this.readingList = [...this.readingList, readItem];
+        this.readingList.val = [...this.readingList.val, { text: readItem }];
     }
 
     render() {
@@ -52,8 +52,9 @@ class MyLilComponent extends LilPlainComponent {
                 textContent: "Add",
                 onclick: () => { this.myNextRead(this.title.val) } 
             }),
-            ul({}, this.readingList.map(e => li({ textContent: e })))
+            ul({}, this.readingList.map(e => li({ textContent: e.text })))
         );
+        return view;
     }
 }
 
@@ -64,4 +65,10 @@ const app = div({},
 );
 
 document.getElementById("deployHere").appendChild(app);
+```
+
+# Installation
+
+```
+npm i lilkit
 ```
