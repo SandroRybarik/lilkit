@@ -145,7 +145,9 @@ const appendChildren = (root: Node, children: Node[]) => {
         if (c instanceof LilComponent || c instanceof LilPlainComponent) {
             // HERE CAN BE INSERETED ADDIOTANL METHODS
             // TO SUPPORT MORE LIFECYCLE HOOKS IN FUTURE
-            root.appendChild(c.render());
+            const componentView = c.render();
+            root.appendChild(componentView);
+            // c.connectedCallback();
         } else {
             root.appendChild(c);
         }
